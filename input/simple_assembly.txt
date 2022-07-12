@@ -1,0 +1,47 @@
+start: mov   <REG[0]>, d0
+mov   <REG[1]>, d1
+mov   <REG[2]>, d2
+mov   <REG[3]>, d3
+mov   <REG[4]>, d4
+add   <REG[5]>, <REG[4]>, d4
+adds  <REG[6]>, <REG[5]>, d4
+sub   <REG[7]>, <REG[4]>, <REG[2]>
+subs  <REG[8]>, <REG[2]>, <REG[4]>
+adds  <REG[9]>, <REG[0]>, <REG[8]>
+mul   <REG[10]>, <REG[2]>, d3
+mul   <REG[11]>, <REG[2]>, <REG[3]>
+muls  <REG[12]>, <REG[8]>, d4
+muls  <REG[13]>, <REG[8]>, <REG[8]>
+mov   <REG[0]>, 0xABCD
+mov   <REG[1]>, 0xFFFF
+sgs   <REG[2]>, <REG[0]>, d3, d0
+sgs   <REG[2]>, <REG[0]>, d7, d0
+sgs   <REG[2]>, <REG[0]>, d11, d0
+sgs   <REG[2]>, <REG[1]>, d15, d0
+and0  <REG[3]>, <REG[1]>, 0x00
+lft   <REG[1]>, <REG[1]>, d16
+and1  <REG[3]>, <REG[1]>, 0x00
+lft   <REG[1]>, <REG[1]>, d16
+and2  <REG[3]>, <REG[1]>, 0x00
+lft   <REG[1]>, <REG[1]>, d16
+and3  <REG[3]>, <REG[1]>, 0x00
+arft   <REG[1]>, <REG[1]>, d16
+arft   <REG[1]>, <REG[1]>, d16
+rft   <REG[1]>, <REG[1]>, d16
+rft   <REG[1]>, <REG[1]>, d16
+mov   <REG[3]>, #0
+or0   <REG[4]>, <REG[3]>, <REG[1]>
+cct   <REG[4]>, <REG[0]>, <REG[1]>, d15, d0, d15, d0
+mov   <PE_REG[4]>, <REG[4]>, #0001
+mov   <PE_REG[0]>, d0, #0001
+mov   <PE_REG[1]>, d1, #0001
+mov   <PE_REG[2]>, d2, #0001
+mov   <PE_REG[3]>, d3, #0001
+add   <PE_REG[4]>, <PE_REG[0]>, d2, #0001
+add   <PE_REG[4]>, <PE_REG[0]>, <PE_REG[2]>, #0001
+subs  <PE_REG[4]>, <PE_REG[0]>, d2, #0001
+muls  <PE_REG[5]>, <PE_REG[4]>, <PE_REG[3]>, #0001
+mov   <REG[4]>, <PE_REG[5]>, #0001
+je    <REG[3]>, d0, !dest
+jmp   !start
+dest: dvd <REG[14]>, <REG[4]>, d0

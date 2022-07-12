@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\cl.dir/objects.a
+C:\PROGRA~1\JETBRA~1\CLion\bin\mingw\bin\ar.exe qc CMakeFiles\cl.dir/objects.a @CMakeFiles\cl.dir\objects1.rsp
+C:\PROGRA~1\JETBRA~1\CLion\bin\mingw\bin\G__~1.EXE -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\cl.dir/objects.a -Wl,--no-whole-archive -o cl.exe -Wl,--out-implib,libcl.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cl.dir\linklibs.rsp

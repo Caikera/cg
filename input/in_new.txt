@@ -1,0 +1,78 @@
+SET REG[0] cluster_id
+SET REG[1] timestep
+SET REG[2] input_addr
+SET REG[3] queue_addr
+SET REG[4] spike_id
+SET REG[5] spike_timestep
+SET REG[6] spike_src_id
+SET REG[7] num
+SET REG[8] rl_dest_idx
+SET REG[9] weight_ddr_addr
+
+SET PE_REG[0] _cluster_id
+SET PE_REG[1] _pe_id
+SET PE_REG[2] _next_timestep
+SET PE_REG[3] _threshold
+SET PE_REG[4] _spike_id
+SET PE_REG[5] _neuron_id
+SET PE_REG[6] _weight
+SET PE_REG[7] _potential
+SET PE_REG[8] _potential_id
+SET PE_REG[9] _potential_v
+SET PE_REG[10] _out_spike_id
+SET PE_REG[11] _addr
+SET PE_REG[12] _weight_addr
+SET PE_REG[13] _weight_ddr_addr
+
+HL1_init:           mov  <timestep>, #0                                                                // timestep <= 0
+                    mov  <num>, d300                                                                   // constant num <= 300
+                    mov  <_weight_addr>, #0, #1111                                                     // weight_addr <= 0
+                    mov  <_next_timestep>, #1, #1111                                                   // _next_timestep <= 1
+                    mov  <_threshold>, #1, #1111                                                       // _threshold <= 1
+                    lft  <_threshold>, <_threshold>, d22, #1111                                        // _threshold <= (1<<22) = 2^22
+                    mov  <input_addr>, #0                                                              // input_addr <= 0
+HL1_input_read:     rdi  <spike_id>, <input_addr>                                                      //spike_id <= input_mem[input_addr]
+                    sgs  <spike_timestep>, <spike_id>, d23, d16                                        // spike_timestep <= spike_ID[23:16]
+                    sgs  <spike_src_id>, <spike_id>, d15, d0                                           // spike_src_id <= spike_ID[15:00]
+                    je   <timestep>, <spike_timestep>, !HL1_handle_init                                // if spike_timestep == current timestep, go to do potential update
+                    jmp  !HL1_ckf_init                                                                 // else go to checking fire
+HL1_ckf_init:       mov  <rl_dest_idx>, #0                                                             // rl_dest_idx <= 0
+                    mov  <_addr>, #0, #1111                                                            // _addr <= 0
+                    jmp  !HL1_ckf
+HL1_ckf:            rpm  <_potential>, <_addr>, #1111                                                  // _potential <= potential_mem[_addr]
+                    cct  <_out_spike_id>, <_next_timestep>, <_potential>, d7, d0, d47, d32 ,#1111      // _out_spike_id <= {_next_timestep[7:0], _potential[63:32]}
+                    and1 <_out_spike_id>, <_out_spike_id>, #0000_1111_1111_1111, #1111                 // _out_spike_id[31:28] <= 4'b0
+                    asgs <_potential_v>, <_potential>, d31, d0, #1111                                  // _potential_v <= potential[31:00] signed extending
+                    opt  <_potential_v>, <_threshold>, <_out_spike_id>, #0000_0000_0000_0111, #1111    // if _potential[31:00] >= _threshold, write {_cluster_musk[15:00], _out_spike_ID[31:00]} to output FIFO, reset _potential[31:00] to 0
+                    cct  <_potential>, <_potential>, <_potential_v>, d63, d32, d31, d0, #1111                 // _potential <= _potential[63:32] + _potential_v[31:00]
+                    wbp  <_addr>, <_potential>,  #1111                                                 // write back, potential_mem[_addr] <= _potential
+                    add  <rl_dest_idx>, <rl_dest_idx>, #1                                              // rl_dest_id ++;
+                    add  <_addr>, <_addr>, #1, #1111                                                   // _addr ++;
+                    jn   <rl_dest_idx>, d300, !HL1_ckf                                                 // if _addr != 300, continue checking firing
+                    je   <spike_timestep>, 0xFF, !endimg                                               // if spike_timestep == 0xFF, end of the image
+                    jmp  !HL1_sync                                                                   // else, sychronize for the next timestep
+HL1_sync:           syn                                                                                // sychronize
+                    add  <timestep>, <timestep>, #1                                                    // timestep ++
+                    add  <_next_timestep>, <_next_timestep>, #1, #1111                                 // _next_timestep ++
+                    jmp  !HL1_input_read                                                                    // go to read the next input
+HL1_handle_init:    add  <input_addr>, <input_addr>, #1                                                // input_addr ++
+                    mov  <rl_dest_idx>, #0                                                             // rl_dest_idx <= 0
+                    mov  <_addr>, #0, #1111                                                            // _addr <= 0
+                    mul  <weight_ddr_addr>, <spike_src_id>, d300                                       // weight_ddr_addr <= 300 * spike_src_id
+                    mov  <_weight_ddr_addr>, <weight_ddr_addr>, #1111
+                    ldw  <_weight_addr>, <_weight_ddr_addr>, d300, #1111                               // load weight from ddr
+                    jmp  !HL1_handle                                                                   // go to potential updation
+HL1_handle:         rwm  <_weight>, <_addr>, #1111                                                     // _weight <= weight_mem[_addr]
+                    rpm  <_potential>, <_addr>, #1111                                                  // _potential <= potential_mem[_addr]
+                    sgs  <_potential_id>, <_potential>, d63, d32, #1111                                // _potential_id <= potential[63:32] unsigned
+                    asgs <_potential_v>, <_potential>, d31, d0, #1111                                  // _potential_v <= potential[31:00] signed extending
+                    adds <_potential_v>, <_potential_v>, <_weight>, #1111                              // _potential_v <= _potential_v + _weight
+                    cct  <_potential>, <_potential_id>, <_potential_v>, d31, d0, d31, d0, #1111        // _potential <= {potential_id[31:00], potential_v[31:00]}
+                    wbp  <_addr>, <_potential>, #1                                                     // write back, potential_mem[_addr] <= _potential
+                    add  <rl_dest_idx>, <rl_dest_idx>, #1                                              // rl_dest_id ++
+                    add  <_addr>, <_addr>, #1, #1111                                                   // _addr ++
+                    jn   <rl_dest_idx>, d300, !HL1_handle                                              // if rl_dest_id != 300, updating the next potential
+                    jmp  !HL1_input_read                                                               // else go to read the next input
+endimg:             syn                                                                                // sychronize
+                    syn                                                                                // sychronize
+                    done                                                                               // all done for this image

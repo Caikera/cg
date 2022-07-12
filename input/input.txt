@@ -1,0 +1,5 @@
+mov <PE_REG[3]>, 0x33221100, #1111               // REG[3] SPIKE_ID
+mov <PE_REG[2]>, d0, #1111                       // REG[2] THRESHOLD
+mov <PE_REG[1]>, d1, #1111                       // REG[1] POTENTIAL
+opt <PE_REG[1]>, <PE_REG[2]>, <PE_REG[3]>, #111, #1111
+done
