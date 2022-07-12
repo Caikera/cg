@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdC/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-debug/CMakeFiles/3.22.3/CompilerIdCXX/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-debug/CMakeFiles/CMakeTmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-release/CMakeFiles/3.22.3/CompilerIdC/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-release/CMakeFiles/3.22.3/CompilerIdCXX/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/cmake-build-release/CMakeFiles/CMakeTmp" />
+    </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
