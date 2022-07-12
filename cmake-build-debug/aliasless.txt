@@ -1,5 +1,0 @@
-mov <PE_REG[3]> 0x33221100 #1111 
-mov <PE_REG[2]> d0 #1111 
-mov <PE_REG[1]> d1 #1111 
-opt <PE_REG[1]> <PE_REG[2]> <PE_REG[3]> #111 #1111 
-done 

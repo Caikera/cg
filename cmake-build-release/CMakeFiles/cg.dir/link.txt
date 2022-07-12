@@ -1,3 +1,0 @@
-"C:\Program Files\JetBrains\CLion\bin\cmake\win\bin\cmake.exe" -E rm -f CMakeFiles\cg.dir/objects.a
-C:\PROGRA~1\JETBRA~1\CLion\bin\mingw\bin\ar.exe qc CMakeFiles\cg.dir/objects.a @CMakeFiles\cg.dir\objects1.rsp
-C:\PROGRA~1\JETBRA~1\CLion\bin\mingw\bin\G__~1.EXE -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\cg.dir/objects.a -Wl,--no-whole-archive -o cg.exe -Wl,--out-implib,libcg.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cg.dir\linklibs.rsp
